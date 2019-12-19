@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <Button
+        android:id="@+id/button7"
+        android:layout_width="167dp"
+        android:layout_height="184dp"
+        android:text="Button"
+        tools:layout_editor_absoluteX="651dp"
+        tools:layout_editor_absoluteY="118dp" />
+
+    <Button
+        android:id="@+id/button6"
+        android:layout_width="167dp"
+        android:layout_height="184dp"
+        android:text="Button"
+        tools:layout_editor_absoluteX="841dp"
+        tools:layout_editor_absoluteY="118dp" />
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="167dp"
+        android:layout_height="184dp"
+        android:text="Button"
+        tools:layout_editor_absoluteX="205dp"
+        tools:layout_editor_absoluteY="118dp" />
+
+    <EditText
+        android:id="@+id/awayTeam"
+        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+        android:layout_width="475dp"
+        android:layout_height="83dp"
+        android:background="#00FF0000"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="AWAY TEAM"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="36sp"
+        tools:layout_editor_absoluteX="533dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <ToggleButton
+        android:id="@+id/toggleTime"
+        android:layout_width="171dp"
+        android:layout_height="84dp"
+        android:checked="false"
+        android:text="ToggleButton"
+        android:textOff="START"
+        android:textOn="STOP"
+        tools:layout_editor_absoluteX="427dp"
+        tools:layout_editor_absoluteY="218dp" />
+
+    <EditText
+        android:id="@+id/timeAmount"
+        android:layout_width="239dp"
+        android:layout_height="83dp"
+        android:ems="10"
+        android:inputType="time"
+        android:text="5:00"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="36sp"
+        tools:layout_editor_absoluteX="393dp"
+        tools:layout_editor_absoluteY="118dp" />
+
+    <EditText
+        android:id="@+id/homeTeam"
+        style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox"
+        android:layout_width="475dp"
+        android:layout_height="83dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="HOME TEAM"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="36sp"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="167dp"
+        android:layout_height="184dp"
+        android:text="Button"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="118dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
