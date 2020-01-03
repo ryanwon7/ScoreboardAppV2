@@ -3,11 +3,10 @@ import java.applet.*;
 import java.awt.event.*;
 import java.net.URL;
 
-public class Scoreboard extends Applet implements Runnable, ActionListener {
+public class Scoreboard extends Applet implements Runnable, ActionListener, KeyListener {
     private Thread scoreThread;
 
-    private String tagString = "ScoreBoard Version 2.2 - January 2019";
-    private Toolkit toolkit = Toolkit.getDefaultToolkit();
+    private String tagString = "ScoreBoard Version 3.2 - January 2020";
     private URL hornSoundFile, beepSoundFile;
     private AudioClip hornSound, beepSound;
     private Timer scoreboardTimer, timeoutTimer;
@@ -49,6 +48,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener {
         System.out.println("Used for noncommerical purposes for the Annual Jesuwon Basketball Tournament");
 
         getParamTags();
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
         logoJBA = toolkit.getImage("resources/JBA CALEB.png");
         logoJesuwon = toolkit.getImage("resources/jesuwon.png");
         setupControlPanel();
@@ -130,12 +130,12 @@ public class Scoreboard extends Applet implements Runnable, ActionListener {
         Font buttonFont = new Font("Helvetica", Font.BOLD, buttonFontSize);
         Font textFieldFont = new Font("Helvetica", Font.BOLD, 50);
         homeText = new TextField(10);
+        homeText.addKeyListener(this);
         homeText.setFont(textFieldFont);
         guestText = new TextField(10);
         guestText.setFont(textFieldFont);
         timerText = new TextField(10);
         timerText.setFont(textFieldFont);
-
 
         periodUpButton = new Button("Period+");
         periodUpButton.addActionListener(this);
@@ -604,12 +604,21 @@ public class Scoreboard extends Applet implements Runnable, ActionListener {
         }
         return(returnValue);
     }
-
-
+    public void keyTyped(KeyEvent e) {
+        //
+    }
+    public void keyPressed(KeyEvent e) {
+        System.out.println();
+    }
+    public void keyReleased(KeyEvent e) {
+        //
+    }
+    private void handleKeyPress(int keyCode) {
+        System.out.println(keyCode);
+    }
 
     public void actionPerformed(ActionEvent event) {
         Object source = event.getSource();
-
         if (source == settimeButton) {
             scoreboardTimer.pause();
             scoreboardTimer.setTimer(convertTimeStringToInt(timerText.getText()));
@@ -684,7 +693,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener {
             if (scoreHome > 2) scoreHome -= 3;
             paintHomeScore();
         } else if (source == homesetButton) {
-            scoreHome = intValue(scoreText.getText());
+            scoreHome = 0;
             paintHomeScore();
         } else if (source == guestuptwoButton) {
             scoreGuest += 2;
@@ -699,7 +708,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener {
             if (scoreGuest > 2) scoreGuest -= 3;
             paintGuestScore();
         } else if (source == guestsetButton) {
-            scoreGuest = intValue(scoreText.getText());
+            scoreGuest = 0;
             paintGuestScore();
         } else if (source == periodOneButton) {
             periodNumber = 1;
