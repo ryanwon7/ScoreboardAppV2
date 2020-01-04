@@ -7,6 +7,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private Thread scoreThread;
 
     private String tagString = "ScoreBoard Version 3.2 - January 2020";
+    private Toolkit toolkit = Toolkit.getDefaultToolkit();
     private URL hornSoundFile, beepSoundFile;
     private AudioClip hornSound, beepSound;
     private Timer scoreboardTimer, timeoutTimer;
@@ -32,7 +33,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private String nameHome;
     private String nameGuest;
     private String preferredFont;
-    private TextField homeText, guestText, timerText, scoreText;
+    private TextField homeText, guestText, timerText, scoreText, commandText;
 
     private Color bgColor, timeColor, lastMinuteTimeColor, scoreColor, homeNameColor, guestNameColor, fillColor;
 
@@ -48,7 +49,6 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         System.out.println("Used for noncommerical purposes for the Annual Jesuwon Basketball Tournament");
 
         getParamTags();
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
         logoJBA = toolkit.getImage("resources/JBA CALEB.png");
         logoJesuwon = toolkit.getImage("resources/jesuwon.png");
         setupControlPanel();
@@ -129,8 +129,8 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private void setupControlPanel() {
         Font buttonFont = new Font("Helvetica", Font.BOLD, buttonFontSize);
         Font textFieldFont = new Font("Helvetica", Font.BOLD, 50);
+
         homeText = new TextField(10);
-        homeText.addKeyListener(this);
         homeText.setFont(textFieldFont);
         guestText = new TextField(10);
         guestText.setFont(textFieldFont);
@@ -241,7 +241,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         switchButton.addActionListener(this);
         switchButton.setFont(buttonFont);
 
-        setLayout(new GridLayout(14,2,3,3));
+        commandText = new TextField(10);
+        commandText.addKeyListener(this);
+        commandText.setFont(textFieldFont);
+
+        setLayout(new GridLayout(15,2,3,3));
 
         add(timerText);
         add(settimeButton);
@@ -285,13 +289,14 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         add(resetButton);
         add(switchButton);
 
+        add(commandText);
     }
 
     private void resetScoreboard() {
         scoreboardGraphics.setColor(fillColor);
         scoreboardGraphics.fillRect(0,0,1920,1080);
         scoreboardTimer.pause();
-        scoreboardTimer.setTimer(0);
+        scoreboardTimer.setTimer(1);
         paintTimer();
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
@@ -607,14 +612,81 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     public void keyTyped(KeyEvent e) {
         //
     }
-    public void keyPressed(KeyEvent e) {
-        System.out.println();
-    }
     public void keyReleased(KeyEvent e) {
         //
     }
-    private void handleKeyPress(int keyCode) {
-        System.out.println(keyCode);
+    public void keyPressed(KeyEvent e) {
+        handleKeyPress(e.getKeyChar());
+    }
+    private void handleKeyPress(char keyChar) {
+        if (keyChar=='a') {
+            scoreHome += 3;
+            paintHomeScore();
+        } else if (keyChar=='s') {
+            scoreHome += 2;
+            paintHomeScore();
+        } else if (keyChar=='z') {
+            scoreHome -= 1;
+            paintHomeScore();
+        } else if (keyChar=='d') {
+            scoreGuest += 3;
+            paintGuestScore();
+        } else if (keyChar=='f') {
+            scoreGuest += 2;
+            paintGuestScore();
+        } else if (keyChar=='c') {
+            scoreGuest -= 1;
+            paintGuestScore();
+        } else if (keyChar=='r') {
+            scoreboardTimer.cont();
+            startButton.setEnabled(false);
+            stopButton.setEnabled(true);
+            settimeButton.setEnabled(false);
+        } else if (keyChar=='w') {
+            scoreboardTimer.pause();
+            startButton.setEnabled(false);
+            stopButton.setEnabled(false);
+            startButton.setEnabled(false);
+            timeoutTimer.pause();
+            timeoutTimer.setTimer(convertTimeStringToInt("0:30"));
+            paintTimeoutTime();
+            timeoutTimer.cont();
+            startTOButton.setEnabled(false);
+            clearTOButton.setEnabled(true);
+        } else if (keyChar=='q') {
+            scoreboardTimer.pause();
+            scoreboardTimer.setTimer(convertTimeStringToInt(timerText.getText()));
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            paintTimer();
+        } else if (keyChar=='e') {
+            timeoutTimer.pause();
+            timeoutTimer.setTimer(0);
+            startTOButton.setEnabled(true);
+            clearTOButton.setEnabled(false);
+            startButton.setEnabled(true);
+            paintTimer();
+            startButton.setEnabled(true);
+        } else if (keyChar=='t') {
+            scoreboardTimer.pause();
+            startButton.setEnabled(true);
+            stopButton.setEnabled(false);
+            settimeButton.setEnabled(true);
+        } else if (keyChar=='x') {
+            switchButton();
+        } else if (keyChar=='g') {
+            if (periodNumber <= maxPeriods) {
+                periodNumber++;
+                paintPeriod();
+            }
+        } else if (keyChar=='b') {
+            if (periodNumber > 1) {
+                periodNumber--;
+            }
+            paintPeriod();
+        } else if (keyChar=='v') {
+                resetScoreboard();
+        }
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -719,7 +791,9 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 paintPeriod();
             }
         } else if (source == periodDnButton) {
-            if (periodNumber > 1) periodNumber--;
+            if (periodNumber > 1) {
+                periodNumber--;
+            }
             paintPeriod();
         }
     }
