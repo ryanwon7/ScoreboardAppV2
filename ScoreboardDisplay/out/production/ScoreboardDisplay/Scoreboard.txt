@@ -1,0 +1,18 @@
+<HTML><HEAD><TITLE>ScoreBoard</TITLE></HEAD><BODY>
+
+<APPLET CODE="Scoreboard.class" WIDTH=480 HEIGHT=480>
+<PARAM NAME = "maxPeriods" VALUE = "2">
+<PARAM NAME = "bgColor" VALUE = "000000">
+<PARAM NAME = "timeColor" VALUE = "ffff00">
+<PARAM NAME = "timeFontSize" VALUE = "330">
+<PARAM NAME = "lastMinuteTimeColor" VALUE = "ff8080">
+<PARAM NAME = "scoreFontSize" VALUE = "600">
+<PARAM NAME = "scoreColor" VALUE = "ffffff">
+<PARAM NAME = "textColor" VALUE = "ffff00">
+<PARAM NAME = "fillColor" VALUE = "808080">
+<PARAM NAME = "framePositionX" VALUE = "1020">
+<PARAM NAME = "framePositionY" VALUE = "-26">
+<PARAM NAME = "buttonFontSize" VALUE = "30">
+</APPLET>
+
+</BODY></HTML>
