@@ -7,10 +7,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private Thread scoreThread;
 
     private String tagString = "ScoreBoard Version 3.2 - January 2020";
+    private String mode = "noshotclock";//"shotclock"
     private Toolkit toolkit = Toolkit.getDefaultToolkit();
     private URL hornSoundFile, beepSoundFile;
     private AudioClip hornSound, beepSound;
-    private Timer scoreboardTimer, timeoutTimer;
+    private Timer scoreboardTimer, timeoutTimer, shotclockTimer;
     private Image scoreboardImage, logoJBA, logoJesuwon;
     private ImageCanvas scoreboardImageCanvas;
     private Graphics scoreboardGraphics;
@@ -18,21 +19,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             guestdntwoButton, guestsetButton, sethomeButton, setguestButton, settimeButton, periodUpButton,
             periodOneButton, periodDnButton, homeupthreeButton, guestupthreeButton, homednthreeButton,
             guestdnthreeButton, homeTOButton, guestTOButton, resetTOButton, homeResetTOButton, guestResetTOButton,
-            startTOButton, clearTOButton, resetButton, switchButton;
-    private int scoreHome;
-    private int scoreGuest;
-    private int periodNumber;
-    private int maxPeriods;
-    private int homeTimeouts;
-    private int guestTimeouts;
-    private int timeFontSize;
-    private int scoreFontSize;
-    private int buttonFontSize;
-    private int framePositionX;
-    private int framePositionY;
-    private String nameHome;
-    private String nameGuest;
-    private String preferredFont;
+            startTOButton, clearTOButton, resetButton, switchButton, scstartButton, scresetButton;
+    private int scoreHome, scoreGuest,  periodNumber, maxPeriods, homeTimeouts, guestTimeouts, timeFontSize,
+            scoreFontSize, buttonFontSize, framePositionX, framePositionY, shotClockLength;
+    private String nameHome, nameGuest, preferredFont;
     private TextField homeText, guestText, timerText, scoreText, commandText;
 
     private Color bgColor, timeColor, lastMinuteTimeColor, scoreColor, homeNameColor, guestNameColor, fillColor;
@@ -49,7 +39,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         System.out.println("Used for noncommerical purposes for the Annual Jesuwon Basketball Tournament");
 
         getParamTags();
-        logoJBA = toolkit.getImage("resources/JBA CALEB.png");
+        logoJBA = toolkit.getImage("resources/JBA_SAHN.png");
         logoJesuwon = toolkit.getImage("resources/jesuwon.png");
         setupControlPanel();
         scoreboardImage = createImage(1920,1080);
@@ -67,6 +57,9 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardTimer.start();
         timeoutTimer = new Timer(0);
         timeoutTimer.start();
+        shotclockTimer = new Timer(0);
+        shotclockTimer.start();
+        shotclockTimer.setTimer(shotClockLength);
         resetScoreboard();
         windowFrame.setVisible(true);
         startSounds();
@@ -79,6 +72,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         paramString = getParameter("bgColor");
         if (paramString != null) bgColor = new Color(hexValue(paramString));
         else bgColor = Color.black;
+
+        paramString = getParameter("shotClockLength");
+        if (paramString != null) shotClockLength = intValue(paramString);
+        else shotClockLength = 200;
 
         paramString = getParameter("timeColor");
         if (paramString != null) timeColor = new Color(hexValue(paramString));
@@ -136,6 +133,13 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         guestText.setFont(textFieldFont);
         timerText = new TextField(10);
         timerText.setFont(textFieldFont);
+
+        scstartButton = new Button("Start Shot Clock");
+        scstartButton.addActionListener(this);
+        scstartButton.setFont(buttonFont);
+        scresetButton = new Button("Reset Shot Clock");
+        scresetButton.addActionListener(this);
+        scresetButton.setFont(buttonFont);
 
         periodUpButton = new Button("Period+");
         periodUpButton.addActionListener(this);
@@ -209,6 +213,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         guestsetButton.addActionListener(this);
         guestsetButton.setFont(buttonFont);
 
+        /* Removed Timeout Recording Functionality from the Scoreboard.
         homeTOButton = new Button("Red Timeout");
         homeTOButton.addActionListener(this);
         homeTOButton.setFont(buttonFont);
@@ -224,6 +229,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         guestResetTOButton = new Button("Yellow Timeout Reset");
         guestResetTOButton.addActionListener(this);
         guestResetTOButton.setFont(buttonFont);
+        */
 
         startTOButton = new Button("Start Timeout");
         startTOButton.addActionListener(this);
@@ -245,13 +251,16 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         commandText.addKeyListener(this);
         commandText.setFont(textFieldFont);
 
-        setLayout(new GridLayout(15,2,3,3));
+        setLayout(new GridLayout(14,2,3,3));
 
         add(timerText);
         add(settimeButton);
 
         add(startButton);
         add(stopButton);
+
+        add(scstartButton);
+        add(scresetButton);
 
         add(homeText);
         add(guestText);
@@ -274,12 +283,6 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         add(homesetButton);
         add(guestsetButton);
 
-        add(homeTOButton);
-        add(guestTOButton);
-
-        add(homeResetTOButton);
-        add(guestResetTOButton);
-
         add(startTOButton);
         add(clearTOButton);
 
@@ -296,6 +299,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardGraphics.setColor(fillColor);
         scoreboardGraphics.fillRect(0,0,1920,1080);
         scoreboardTimer.pause();
+        shotclockTimer.pause();
         scoreboardTimer.setTimer(1);
         paintTimer();
         startButton.setEnabled(false);
@@ -314,7 +318,8 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         paintPeriod();
         homeTimeouts = 3;
         guestTimeouts = 3;
-        paintTimeouts();
+        //paintTimeouts();
+        paintShotClock();
         paintLogos();
         scoreboardImageCanvas.repaint();
     }
@@ -344,7 +349,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardGraphics.drawImage(logoJesuwon, 1420, 74, this);
         scoreboardImageCanvas.repaint(1402, 74, 480, 192);
     }
-    private synchronized void paintTimeouts() {
+    /*private synchronized void paintTimeouts() {
         String homeTOString;
         String guestTOString;
 
@@ -364,6 +369,27 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardGraphics.setColor(Color.WHITE);
         scoreboardGraphics.drawString(guestTOString, 1020, 1000);
         scoreboardImageCanvas.repaint(990, 850, 140, 180);
+    }*/
+    private synchronized void paintShotClock() {
+        String sSec;
+        int dSec, dTime;
+
+        dTime = shotclockTimer.timerValue;
+        dSec = (dTime / 10) % 60;
+
+        if (dSec < 10) {
+            sSec = "0" + dSec;
+        } else {
+            sSec = dSec + "";
+        }
+
+        scoreboardGraphics.setColor(bgColor);
+        scoreboardGraphics.setFont(new Font(preferredFont, Font.PLAIN, 250));
+
+        scoreboardGraphics.fillRoundRect(800,800,320,230,40,40);
+        scoreboardGraphics.setColor(Color.GREEN);
+        scoreboardGraphics.drawString(sSec, 800, 1000);
+        scoreboardImageCanvas.repaint(800,800,320,230);
     }
     private synchronized void paintTimeoutTime() {
         String sSec, sTim, sMil;
@@ -427,19 +453,19 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         if (periodNumber <= maxPeriods) {
             periodString = periodNumber + "";
             scoreboardGraphics.setColor(bgColor);
-            scoreboardGraphics.setFont(new Font(preferredFont, Font.PLAIN, 300));
-            scoreboardGraphics.fillRoundRect(835,530,250,300,40,40);
+            scoreboardGraphics.setFont(new Font(preferredFont, Font.PLAIN, 250));
+            scoreboardGraphics.fillRoundRect(835,530,250,240,40,40);
             scoreboardGraphics.setColor(Color.WHITE);
-            scoreboardGraphics.drawString(periodString, 880, 780);
-            scoreboardImageCanvas.repaint(835,530,250,300);
+            scoreboardGraphics.drawString(periodString, 885, 735);
+            scoreboardImageCanvas.repaint(835,530,250,260);
         } else {
             periodString = "OT";
             scoreboardGraphics.setColor(bgColor);
             scoreboardGraphics.setFont(new Font(preferredFont, Font.PLAIN, 175));
-            scoreboardGraphics.fillRoundRect(835,530,250,300,40,40);
+            scoreboardGraphics.fillRoundRect(835,530,250,240,40,40);
             scoreboardGraphics.setColor(Color.WHITE);
-            scoreboardGraphics.drawString(periodString, 835, 750);
-            scoreboardImageCanvas.repaint(835,530,250,300);
+            scoreboardGraphics.drawString(periodString, 835, 715);
+            scoreboardImageCanvas.repaint(835,530,250,260);
         }
     }
 
@@ -564,7 +590,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         paintGuestName();
         paintHomeScore();
         paintGuestScore();
-        paintTimeouts();
+        //paintTimeouts();
     }
 
     private int intValue(String str) {
@@ -642,8 +668,14 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
             settimeButton.setEnabled(false);
+            scstartButton.setEnabled(true);
+            scresetButton.setEnabled(true);
+            shotclockTimer.cont();
         } else if (keyChar=='w') {
             scoreboardTimer.pause();
+            shotclockTimer.pause();
+            scstartButton.setEnabled(false);
+            scresetButton.setEnabled(false);
             startButton.setEnabled(false);
             stopButton.setEnabled(false);
             startButton.setEnabled(false);
@@ -666,12 +698,16 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             clearTOButton.setEnabled(false);
             startButton.setEnabled(true);
             paintTimer();
-            startButton.setEnabled(true);
+            scstartButton.setEnabled(true);
+            scresetButton.setEnabled(true);
         } else if (keyChar=='t') {
             scoreboardTimer.pause();
+            shotclockTimer.pause();
             startButton.setEnabled(true);
             stopButton.setEnabled(false);
             settimeButton.setEnabled(true);
+            scstartButton.setEnabled(false);
+            scresetButton.setEnabled(false);
         } else if (keyChar=='x') {
             switchButton();
         } else if (keyChar=='g') {
@@ -686,6 +722,13 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             paintPeriod();
         } else if (keyChar=='v') {
                 resetScoreboard();
+        } else if (keyChar == 'k') {
+            shotclockTimer.cont();
+            scstartButton.setEnabled(false);
+        } else if (keyChar == 'j') {
+            shotclockTimer.pause();
+            shotclockTimer.setTimer(shotClockLength);
+            scstartButton.setEnabled(true);
         }
     }
 
@@ -697,6 +740,13 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             startButton.setEnabled(true);
             stopButton.setEnabled(false);
             paintTimer();
+        } else if (source == scstartButton) {
+            shotclockTimer.cont();
+            scstartButton.setEnabled(false);
+        } else if (source == scresetButton) {
+            shotclockTimer.pause();
+            shotclockTimer.setTimer(shotClockLength);
+            scstartButton.setEnabled(true);
         } else if (source == sethomeButton) {
             nameHome = homeText.getText();
             paintHomeName();
@@ -708,24 +758,30 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             startButton.setEnabled(false);
             stopButton.setEnabled(true);
             settimeButton.setEnabled(false);
+            scstartButton.setEnabled(true);
+            scresetButton.setEnabled(true);
+            shotclockTimer.cont();
         } else if (source == homeTOButton) {
             if (homeTimeouts > 0) {
                 homeTimeouts--;
             }
-            paintTimeouts();
+            //paintTimeouts();
         } else if (source == guestTOButton) {
             if (guestTimeouts > 0) {
                 guestTimeouts--;
             }
-            paintTimeouts();
+            //paintTimeouts();
         } else if (source == homeResetTOButton) {
             homeTimeouts = 3;
-            paintTimeouts();
+            //paintTimeouts();
         } else if (source == guestResetTOButton) {
             guestTimeouts = 3;
-            paintTimeouts();
+            //paintTimeouts();
         } else if (source == startTOButton) {
             scoreboardTimer.pause();
+            shotclockTimer.pause();
+            scstartButton.setEnabled(false);
+            scresetButton.setEnabled(false);
             startButton.setEnabled(false);
             stopButton.setEnabled(false);
             startButton.setEnabled(false);
@@ -742,12 +798,16 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             clearTOButton.setEnabled(false);
             startButton.setEnabled(true);
             paintTimer();
-            startButton.setEnabled(true);
+            scstartButton.setEnabled(true);
+            scresetButton.setEnabled(true);
         } else if (source == stopButton) {
             scoreboardTimer.pause();
+            shotclockTimer.pause();
             startButton.setEnabled(true);
             stopButton.setEnabled(false);
             settimeButton.setEnabled(true);
+            scstartButton.setEnabled(false);
+            scresetButton.setEnabled(false);
         } else if (source == resetButton) {
             resetScoreboard();
         } else if (source == switchButton) {
@@ -812,6 +872,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     public void run() {
         int lastScoreboardTimerValue = 0;
         int lastTimeoutTimerValue = 0;
+        int lastShotclockTimerValue = 0;
         String lastTime = "";
 
         while (Thread.currentThread() == scoreThread) {
@@ -820,7 +881,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             } catch (InterruptedException e) { e.printStackTrace(); }
 
             if (lastTimeoutTimerValue != timeoutTimer.timerValue) {
-                paintTimeoutTime();
+                //paintTimeoutTime();
                 if (timeoutTimer.timerValue == 0) {
                     clearTOButton.setEnabled(false);
                     startTOButton.setEnabled(true);
@@ -831,6 +892,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                     }
                 }
             }
+
             if (lastScoreboardTimerValue != scoreboardTimer.timerValue) {
                 paintTimer();
                 if (scoreboardTimer.timerValue == 0) {
@@ -838,6 +900,16 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                     stopButton.setEnabled(false);
                     if (hornSound != null) {
                         hornSound.play();
+                    }
+                }
+            }
+
+            if (lastShotclockTimerValue != shotclockTimer.timerValue) {
+                paintShotClock();
+                if (shotclockTimer.timerValue == 1) {
+                    scstartButton.setEnabled(false);
+                    if (beepSound != null) {
+                        beepSound.play();
                     }
                 }
             }

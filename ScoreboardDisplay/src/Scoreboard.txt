@@ -6,6 +6,7 @@
 <PARAM NAME = "timeColor" VALUE = "ffff00">
 <PARAM NAME = "timeFontSize" VALUE = "330">
 <PARAM NAME = "lastMinuteTimeColor" VALUE = "ff8080">
+<PARAM NAME = "shotClockLength" VALUE = "200">
 <PARAM NAME = "scoreFontSize" VALUE = "600">
 <PARAM NAME = "scoreColor" VALUE = "ffffff">
 <PARAM NAME = "textColor" VALUE = "ffff00">
