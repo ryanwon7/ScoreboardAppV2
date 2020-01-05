@@ -670,7 +670,6 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             settimeButton.setEnabled(false);
             scstartButton.setEnabled(true);
             scresetButton.setEnabled(true);
-            shotclockTimer.cont();
         } else if (keyChar=='w') {
             scoreboardTimer.pause();
             shotclockTimer.pause();
