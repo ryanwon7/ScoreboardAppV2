@@ -386,10 +386,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardGraphics.setColor(bgColor);
         scoreboardGraphics.setFont(new Font(preferredFont, Font.PLAIN, 250));
 
-        scoreboardGraphics.fillRoundRect(810,800,320,230,40,40);
+        scoreboardGraphics.fillRoundRect(790,800,320,230,40,40);
         scoreboardGraphics.setColor(Color.GREEN);
         scoreboardGraphics.drawString(sSec, 800, 1000);
-        scoreboardImageCanvas.repaint(810,800,320,230);
+        scoreboardImageCanvas.repaint(790,800,320,230);
     }
     private synchronized void paintTimeoutTime() {
         String sSec, sTim, sMil;
