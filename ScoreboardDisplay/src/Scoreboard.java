@@ -633,29 +633,33 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     public void keyReleased(KeyEvent e) {
         //
     }
-    public void keyPressed(KeyEvent e) {
-        handleKeyPress(e.getKeyChar());
-    }
+    public void keyPressed(KeyEvent e) { handleKeyPress(e.getKeyChar()); }
     private void handleKeyPress(char keyChar) {
-        if (keyChar=='a') {
+        if (keyChar=='n') {
             scoreHome += 3;
             paintHomeScore();
-        } else if (keyChar=='s') {
+        } else if (keyChar=='m') {
             scoreHome += 2;
             paintHomeScore();
-        } else if (keyChar=='z') {
+        } else if (keyChar==',') {
+            scoreHome += 1;
+            paintHomeScore();
+        } else if (keyChar=='.') {
             scoreHome -= 1;
             paintHomeScore();
-        } else if (keyChar=='d') {
+        } else if (keyChar=='7') {
             scoreGuest += 3;
             paintGuestScore();
-        } else if (keyChar=='f') {
+        } else if (keyChar=='8') {
             scoreGuest += 2;
             paintGuestScore();
-        } else if (keyChar=='c') {
+        } else if (keyChar=='9') {
+            scoreGuest += 1;
+            paintGuestScore();
+        } else if (keyChar=='0') {
             scoreGuest -= 1;
             paintGuestScore();
-        } else if (keyChar=='r') {
+        } else if (keyChar=='l') { //start button
             if (startButton.isEnabled()) {
                 scoreboardTimer.cont();
                 startButton.setEnabled(false);
@@ -663,8 +667,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 settimeButton.setEnabled(false);
                 scstartButton.setEnabled(true);
                 scresetButton.setEnabled(true);
+                if (periodNumber >= 2 && scoreboardTimer.timerValue <= 1200) {
+                    shotclockTimer.cont();
+                }
             }
-        } else if (keyChar=='w') {
+        } else if (keyChar=='k') { //timeout button
             if (startTOButton.isEnabled()) {
                 scoreboardTimer.pause();
                 shotclockTimer.pause();
@@ -680,7 +687,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 startTOButton.setEnabled(false);
                 clearTOButton.setEnabled(true);
             }
-        } else if (keyChar=='q') {
+        } else if (keyChar=='p') { //set time button
             if (settimeButton.isEnabled()) {
                 scoreboardTimer.pause();
                 scoreboardTimer.setTimer(convertTimeStringToInt(timerText.getText()));
@@ -688,7 +695,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 stopButton.setEnabled(false);
                 paintTimer();
             }
-        } else if (keyChar=='e') {
+        } else if (keyChar=='i') { //clear timeout button
             if (clearTOButton.isEnabled()) {
                 timeoutTimer.pause();
                 timeoutTimer.setTimer(0);
@@ -699,7 +706,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 scresetButton.setEnabled(true);
                 redisplayScoreboardTimer();
             }
-        } else if (keyChar=='t') {
+        } else if (keyChar=='o') { //stop button
             if (stopButton.isEnabled()) {
                 scoreboardTimer.pause();
                 shotclockTimer.pause();
@@ -709,26 +716,26 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 scstartButton.setEnabled(false);
                 scresetButton.setEnabled(false);
             }
-        } else if (keyChar=='x') {
+        } else if (keyChar=='g') { //switch button
             switchButton();
-        } else if (keyChar=='g') {
+        } else if (keyChar=='j') { //period plus button
             if (periodNumber <= maxPeriods) {
                 periodNumber++;
                 paintPeriod();
             }
-        } else if (keyChar=='v') {
+        } else if (keyChar=='u') { //period minus button
             if (periodNumber > 1) {
                 periodNumber--;
             }
             paintPeriod();
-        } else if (keyChar=='y') {
+        } else if (keyChar=='t') { //reset button
                 resetScoreboard();
-        } else if (keyChar == 'k') {
+        } else if (keyChar == 'h') { //shotclock start button
             if (scstartButton.isEnabled()) {
                 shotclockTimer.cont();
                 scstartButton.setEnabled(false);
             }
-        } else if (keyChar == 'j') {
+        } else if (keyChar == 'y') { //shotclock reset button
             shotclockTimer.pause();
             shotclockTimer.setTimer(shotClockLength);
             scstartButton.setEnabled(true);
@@ -763,7 +770,9 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             settimeButton.setEnabled(false);
             scstartButton.setEnabled(true);
             scresetButton.setEnabled(true);
-            shotclockTimer.cont();
+            if (periodNumber >= 2 && scoreboardTimer.timerValue <= 1200) {
+                shotclockTimer.cont();
+            }
         } else if (source == startTOButton) {
             scoreboardTimer.pause();
             shotclockTimer.pause();
