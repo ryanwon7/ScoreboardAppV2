@@ -386,10 +386,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardGraphics.setColor(bgColor);
         scoreboardGraphics.setFont(new Font(preferredFont, Font.PLAIN, 250));
 
-        scoreboardGraphics.fillRoundRect(800,800,320,230,40,40);
+        scoreboardGraphics.fillRoundRect(810,800,320,230,40,40);
         scoreboardGraphics.setColor(Color.GREEN);
         scoreboardGraphics.drawString(sSec, 800, 1000);
-        scoreboardImageCanvas.repaint(800,800,320,230);
+        scoreboardImageCanvas.repaint(810,800,320,230);
     }
     private synchronized void paintTimeoutTime() {
         String sSec, sTim, sMil;
@@ -454,10 +454,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             periodString = periodNumber + "";
             scoreboardGraphics.setColor(bgColor);
             scoreboardGraphics.setFont(new Font(preferredFont, Font.PLAIN, 250));
-            scoreboardGraphics.fillRoundRect(835,530,250,240,40,40);
+            scoreboardGraphics.fillRoundRect(840,530,250,240,40,40);
             scoreboardGraphics.setColor(Color.WHITE);
             scoreboardGraphics.drawString(periodString, 885, 735);
-            scoreboardImageCanvas.repaint(835,530,250,260);
+            scoreboardImageCanvas.repaint(840,530,250,240);
         } else {
             periodString = "OT";
             scoreboardGraphics.setColor(bgColor);
@@ -465,7 +465,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             scoreboardGraphics.fillRoundRect(835,530,250,240,40,40);
             scoreboardGraphics.setColor(Color.WHITE);
             scoreboardGraphics.drawString(periodString, 835, 715);
-            scoreboardImageCanvas.repaint(835,530,250,260);
+            scoreboardImageCanvas.repaint(835,530,250,240);
         }
     }
 
@@ -484,7 +484,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             fontSize--;
         } while (nameWidth > 900);
         scoreboardGraphics.drawString(nameHome,(480-(nameWidth/2)), (400+(fontSize/2)));
-        scoreboardImageCanvas.repaint(20,340,920,150);
+        scoreboardImageCanvas.repaint(20,340,920,170);
     }
 
     private synchronized void paintGuestName() {
@@ -502,7 +502,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             fontSize--;
         } while (nameWidth > 900);
         scoreboardGraphics.drawString(nameGuest,(1440-(nameWidth/2)), (400+(fontSize/2)));
-        scoreboardImageCanvas.repaint(980,340,920,150);
+        scoreboardImageCanvas.repaint(980,340,920,170);
     }
 
     private synchronized void paintHomeScore() {
@@ -728,7 +728,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 periodNumber--;
             }
             paintPeriod();
-        } else if (keyChar=='t') { //reset button
+        } else if (keyChar=='q') { //reset button
                 resetScoreboard();
         } else if (keyChar == 'h') { //shotclock start button
             if (scstartButton.isEnabled()) {
