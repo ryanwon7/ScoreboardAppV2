@@ -1,6 +1,8 @@
+import javax.sound.sampled.*;
 import java.awt.*;
 import java.applet.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.net.URL;
 
 public class Scoreboard extends Applet implements Runnable, ActionListener, KeyListener {
@@ -9,8 +11,8 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private String tagString = "ScoreBoard Version 3.2 - January 2020";
     private String mode = "noshotclock";//"shotclock"
     private Toolkit toolkit = Toolkit.getDefaultToolkit();
-    private URL hornSoundFile, beepSoundFile;
-    private AudioClip hornSound, beepSound;
+    //private URL hornSoundFile, beepSoundFile;
+    //private AudioClip hornSound, beepSound;
     private Timer scoreboardTimer, timeoutTimer, shotclockTimer;
     private Image scoreboardImage, logoJBA, logoJesuwon;
     private ImageCanvas scoreboardImageCanvas;
@@ -25,6 +27,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private TextField homeText, guestText, timerText, scoreText, commandText;
 
     private Color bgColor, timeColor, lastMinuteTimeColor, scoreColor, homeNameColor, guestNameColor, fillColor;
+    private Clip clip;
 
     public void init() {
 
@@ -61,7 +64,16 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         shotclockTimer.setTimer(shotClockLength);
         resetScoreboard();
         windowFrame.setVisible(true);
-        startSounds();
+        try {
+            clip = AudioSystem.getClip();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
+        try {
+            startSounds();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
         transferFocus();
     }
 
@@ -324,11 +336,24 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardImageCanvas.repaint();
     }
 
-    private void startSounds() {
+    private void startSounds() throws LineUnavailableException {
+        URL longBeepUrl = this.getClass().getClassLoader().getResource("resources/beep.au");
         try {
-            hornSoundFile = new URL(getCodeBase(), "resources/beep_long.wav");
-        } catch (java.net.MalformedURLException e) {
+            AudioInputStream longBeepIn= AudioSystem.getAudioInputStream(longBeepUrl);
+            clip.open(longBeepIn);
+        } catch (UnsupportedAudioFileException e) {
             System.err.println("can't form beep_long.wav URL");
+        } catch (IOException e) {
+            System.err.println("Cannot find required audio file");
+        }
+        /*URL beepUrl = this.getClass().getClassLoader().getResource("resources/beep.au");
+        try {
+            AudioInputStream beepIn = AudioSystem.getAudioInputStream(beepUrl);
+            clip.open(beepIn);
+        } catch (UnsupportedAudioFileException e) {
+            System.err.println("can't form beep_long.wav URL");
+        } catch (IOException e) {
+            System.err.println("Cannot find required audio file");
         }
         if (hornSoundFile != null) {
             hornSound = getAudioClip(hornSoundFile);
@@ -340,7 +365,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         }
         if (beepSoundFile != null) {
             beepSound = getAudioClip(beepSoundFile);
-        }
+        }*/
     }
 
     private synchronized void paintLogos() {
@@ -889,9 +914,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                     startTOButton.setEnabled(true);
                     startButton.setEnabled(true);
                     settimeButton.setEnabled(true);
-                    if (beepSound != null) {
+                    clip.start();
+                    /*if (beepSound != null) {
                         beepSound.play();
-                    }
+                    }*/
                     redisplayScoreboardTimer();
                 }
             }
@@ -901,9 +927,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 if (scoreboardTimer.timerValue == 0) {
                     settimeButton.setEnabled(true);
                     stopButton.setEnabled(false);
-                    if (hornSound != null) {
+                    clip.start();
+                    /*if (hornSound != null) {
                         hornSound.play();
-                    }
+                    }*/
                 }
             }
 
@@ -911,9 +938,10 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 paintShotClock();
                 if (shotclockTimer.timerValue == 1) {
                     scstartButton.setEnabled(false);
-                    if (beepSound != null) {
+                    //clip.start();
+                    /*if (beepSound != null) {
                         beepSound.play();
-                    }
+                    }*/
                 }
             }
             paint(scoreboardGraphics);
