@@ -1,6 +1,8 @@
+import javax.sound.sampled.*;
 import java.awt.*;
 import java.applet.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.net.URL;
 
 public class Scoreboard extends Applet implements Runnable, ActionListener, KeyListener {
@@ -26,7 +28,8 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private TextField homeText, guestText, timerText, scoreText, commandText;
 
     private Color bgColor, timeColor, lastMinuteTimeColor, scoreColor, homeNameColor, guestNameColor, fillColor;
-
+    private Clip clip;
+    private AudioInputStream audioIn;
     public void init() {
 
         System.out.println(tagString);
@@ -326,6 +329,23 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
 
     private void startSounds() {
         try {
+            // Open an audio input stream.
+            URL url = this.getClass().getClassLoader().getResource("resources/beep_long.wav");
+            audioIn = AudioSystem.getAudioInputStream(url);
+            // Get a sound clip resource.
+            DataLine.Info info = new DataLine.Info(Clip.class, audioIn.getFormat());
+            clip = (Clip) AudioSystem.getLine(info);
+            // Open audio clip and load samples from the audio input stream.
+            clip.open(audioIn);
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        }
+
+        /*try {
             hornSoundFile = new URL(getCodeBase(), "resources/beep_long.wav");
         } catch (java.net.MalformedURLException e) {
             System.err.println("can't form beep_long.wav URL");
@@ -340,7 +360,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         }
         if (beepSoundFile != null) {
             beepSound = getAudioClip(beepSoundFile);
-        }
+        }audiojava*/
     }
 
     private synchronized void paintLogos() {
@@ -880,15 +900,22 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             } catch (InterruptedException e) { e.printStackTrace(); }
 
             if (lastTimeoutTimerValue != timeoutTimer.timerValue) {
-                //paintTimeoutTime();
+                paintTimeoutTime();
                 if (timeoutTimer.timerValue == 0) {
                     clearTOButton.setEnabled(false);
                     startTOButton.setEnabled(true);
                     startButton.setEnabled(true);
-                    settimeButton.setEnabled(true);
-                    if (beepSound != null) {
-                        beepSound.play();
+                    clip.start();
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    startSounds();
+                    clip.setMicrosecondPosition(0);
+                    /*if (beepSound != null) {
+                        clip.start();
+                    }*/
                 }
             }
 
@@ -897,9 +924,25 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 if (scoreboardTimer.timerValue == 0) {
                     settimeButton.setEnabled(true);
                     stopButton.setEnabled(false);
-                    if (hornSound != null) {
-                        hornSound.play();
+                    clip.start();
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    startSounds();
+                    clip.setMicrosecondPosition(0);
+                    /*
+                    try {
+                        clip.open(audioIn);
+                    } catch (LineUnavailableException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (hornSound != null) {
+                        clip.start();
+                    }*/
                 }
             }
 
@@ -907,9 +950,23 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 paintShotClock();
                 if (shotclockTimer.timerValue == 1) {
                     scstartButton.setEnabled(false);
-                    if (beepSound != null) {
-                        beepSound.play();
+                    /*clip.start();
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
+                    clip.close();
+                    try {
+                        clip.open(audioIn);
+                    } catch (LineUnavailableException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (beepSound != null) {
+                        clip.start();
+                    }*/
                 }
             }
             paint(scoreboardGraphics);
