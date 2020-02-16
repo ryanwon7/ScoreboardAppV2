@@ -557,15 +557,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             homedntwoButton.setLabel("Yellow Pt -2");
             homednthreeButton.setLabel("Yellow Pt -3");
             homesetButton.setLabel("Yellow Pt Reset");
-            homeTOButton.setLabel("Yellow Timeout");
-            homeResetTOButton.setLabel("Yellow Timeout Reset");
             guestupthreeButton.setLabel("Red Pt +3");
             guestuptwoButton.setLabel("Red Pt +2");
             guestdntwoButton.setLabel("Red Pt -2");
             guestdnthreeButton.setLabel("Red Pt -3");
             guestsetButton.setLabel("Red Pt Reset");
-            guestTOButton.setLabel("Red Timeout");
-            guestResetTOButton.setLabel("Red Timeout Reset");
         } else {
             homeNameColor = Color.RED;
             guestNameColor = Color.YELLOW;
@@ -576,15 +572,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             homedntwoButton.setLabel("Red Pt -2");
             homednthreeButton.setLabel("Red Pt -3");
             homesetButton.setLabel("Red Pt Reset");
-            homeTOButton.setLabel("Red Timeout");
-            homeResetTOButton.setLabel("Red Timeout Reset");
             guestupthreeButton.setLabel("Yellow Pt +3");
             guestuptwoButton.setLabel("Yellow Pt +2");
             guestdntwoButton.setLabel("Yellow Pt -2");
             guestdnthreeButton.setLabel("Yellow Pt -3");
             guestsetButton.setLabel("Yellow Pt Reset");
-            guestTOButton.setLabel("Yellow Timeout");
-            guestResetTOButton.setLabel("Yellow Timeout Reset");
         }
         paintHomeName();
         paintGuestName();
