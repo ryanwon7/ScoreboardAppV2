@@ -635,6 +635,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         }
         return(returnValue);
     }
+    /*
     public void keyTyped(KeyEvent e) {
         //
     }
@@ -730,7 +731,121 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             scstartButton.setEnabled(true);
         }
     }
-
+*/
+    public void keyTyped(KeyEvent e) {
+        //
+    }
+    public void keyReleased(KeyEvent e) {
+        //
+    }
+    public void keyPressed(KeyEvent e) { handleKeyPress(e.getKeyChar()); }
+    private void handleKeyPress(char keyChar) {
+        if (keyChar=='n') {
+            scoreHome += 3;
+            paintHomeScore();
+        } else if (keyChar=='m') {
+            scoreHome += 2;
+            paintHomeScore();
+        } else if (keyChar==',') {
+            scoreHome += 1;
+            paintHomeScore();
+        } else if (keyChar=='.') {
+            scoreHome -= 1;
+            paintHomeScore();
+        } else if (keyChar=='7') {
+            scoreGuest += 3;
+            paintGuestScore();
+        } else if (keyChar=='8') {
+            scoreGuest += 2;
+            paintGuestScore();
+        } else if (keyChar=='9') {
+            scoreGuest += 1;
+            paintGuestScore();
+        } else if (keyChar=='0') {
+            scoreGuest -= 1;
+            paintGuestScore();
+        } else if (keyChar=='l') { //start button
+            if (startButton.isEnabled()) {
+                scoreboardTimer.cont();
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
+                settimeButton.setEnabled(false);
+                scstartButton.setEnabled(true);
+                scresetButton.setEnabled(true);
+                if (periodNumber >= 2 && scoreboardTimer.timerValue <= 1200) {
+                    shotclockTimer.cont();
+                }
+            }
+        } else if (keyChar=='k') { //timeout button
+            if (startTOButton.isEnabled()) {
+                scoreboardTimer.pause();
+                shotclockTimer.pause();
+                scstartButton.setEnabled(false);
+                scresetButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
+                startButton.setEnabled(false);
+                timeoutTimer.pause();
+                timeoutTimer.setTimer(convertTimeStringToInt("0:30"));
+                paintTimeoutTime();
+                timeoutTimer.cont();
+                startTOButton.setEnabled(false);
+                clearTOButton.setEnabled(true);
+            }
+        } else if (keyChar=='p') { //set time button
+            if (settimeButton.isEnabled()) {
+                scoreboardTimer.pause();
+                scoreboardTimer.setTimer(convertTimeStringToInt(timerText.getText()));
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
+                paintTimer();
+            }
+        } else if (keyChar=='i') { //clear timeout button
+            if (clearTOButton.isEnabled()) {
+                timeoutTimer.pause();
+                timeoutTimer.setTimer(0);
+                startTOButton.setEnabled(true);
+                clearTOButton.setEnabled(false);
+                startButton.setEnabled(true);
+                scstartButton.setEnabled(true);
+                scresetButton.setEnabled(true);
+                //redisplayScoreboardTimer();
+            }
+        } else if (keyChar=='o') { //stop button
+            if (stopButton.isEnabled()) {
+                scoreboardTimer.pause();
+                shotclockTimer.pause();
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
+                settimeButton.setEnabled(true);
+                scstartButton.setEnabled(false);
+                scresetButton.setEnabled(false);
+            }
+        } else if (keyChar=='g') { //switch button
+            switchButton();
+        } else if (keyChar=='j') { //period plus button
+            if (periodNumber <= maxPeriods) {
+                periodNumber++;
+                paintPeriod();
+            }
+        } else if (keyChar=='u') { //period minus button
+            if (periodNumber > 1) {
+                periodNumber--;
+            }
+            paintPeriod();
+        } else if (keyChar=='q') { //reset button
+            resetScoreboard();
+        } else if (keyChar == 'h') { //shotclock start button
+            if (scstartButton.isEnabled()) {
+                shotclockTimer.cont();
+                scstartButton.setEnabled(false);
+            }
+        } else if (keyChar == 'y') { //shotclock reset button
+            shotclockTimer.pause();
+            shotclockTimer.setTimer(shotClockLength);
+            scstartButton.setEnabled(true);
+        }
+    }
     public void actionPerformed(ActionEvent event) {
         Object source = event.getSource();
         if (source == settimeButton) {
