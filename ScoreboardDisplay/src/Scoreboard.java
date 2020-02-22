@@ -987,7 +987,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             } catch (InterruptedException e) { e.printStackTrace(); }
 
             if (lastTimeoutTimerValue != timeoutTimer.timerValue) {
-                //paintTimeoutTime();
+                paintTimeoutTime();
                 if (timeoutTimer.timerValue == 0) {
                     clearTOButton.setEnabled(false);
                     startTOButton.setEnabled(true);
