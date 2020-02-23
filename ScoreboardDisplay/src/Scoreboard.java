@@ -11,8 +11,6 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
     private String tagString = "ScoreBoard Version 3.2 - January 2020";
     private String mode = "noshotclock";//"shotclock"
     private Toolkit toolkit = Toolkit.getDefaultToolkit();
-    private URL hornSoundFile, beepSoundFile;
-    private AudioClip hornSound, beepSound;
     private Timer scoreboardTimer, timeoutTimer, shotclockTimer;
     private Image scoreboardImage, logoJBA, logoJesuwon;
     private ImageCanvas scoreboardImageCanvas;
@@ -21,7 +19,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             guestdntwoButton, guestsetButton, sethomeButton, setguestButton, settimeButton, periodUpButton,
             periodOneButton, periodDnButton, homeupthreeButton, guestupthreeButton, homednthreeButton,
             guestdnthreeButton, homeTOButton, guestTOButton, resetTOButton, homeResetTOButton, guestResetTOButton,
-            startTOButton, clearTOButton, resetButton, switchButton, scstartButton, scresetButton;
+            startTOButton, clearTOButton, resetButton, switchButton, scstartButton, scresetButton, modeSwitchButton;
     private int scoreHome, scoreGuest,  periodNumber, maxPeriods, homeTimeouts, guestTimeouts, timeFontSize,
             scoreFontSize, buttonFontSize, framePositionX, framePositionY, shotClockLength;
     private String nameHome, nameGuest, preferredFont;
@@ -29,9 +27,8 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
 
     private Color bgColor, timeColor, lastMinuteTimeColor, scoreColor, homeNameColor, guestNameColor, fillColor;
     private Clip clip;
-    private AudioInputStream audioIn;
-    public void init() {
 
+    public void init() {
         System.out.println(tagString);
         System.out.println("");
         System.out.println("ScoreBoard comes with ABSOLUTELY NO WARRANTY. ");
@@ -216,7 +213,6 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         guestsetButton.addActionListener(this);
         guestsetButton.setFont(buttonFont);
 
-        /* Removed Timeout Recording Functionality from the Scoreboard.
         homeTOButton = new Button("Red Timeout");
         homeTOButton.addActionListener(this);
         homeTOButton.setFont(buttonFont);
@@ -232,7 +228,6 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         guestResetTOButton = new Button("Yellow Timeout Reset");
         guestResetTOButton.addActionListener(this);
         guestResetTOButton.setFont(buttonFont);
-        */
 
         startTOButton = new Button("Start Timeout");
         startTOButton.addActionListener(this);
@@ -254,7 +249,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         commandText.addKeyListener(this);
         commandText.setFont(textFieldFont);
 
-        setLayout(new GridLayout(14,2,3,3));
+        modeSwitchButton = new Button("Switch Mode");
+        modeSwitchButton.addActionListener(this);
+        modeSwitchButton.setFont(buttonFont);
+
+        setLayout(new GridLayout(16,2,3,3));
 
         add(timerText);
         add(settimeButton);
@@ -286,6 +285,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         add(homesetButton);
         add(guestsetButton);
 
+        add(homeTOButton);
+        add(guestTOButton);
+        add(homeResetTOButton);
+        add(guestResetTOButton);
+
         add(startTOButton);
         add(clearTOButton);
 
@@ -296,22 +300,28 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         add(switchButton);
 
         add(commandText);
+        add(modeSwitchButton);
     }
 
     private void resetScoreboard() {
         scoreboardGraphics.setColor(fillColor);
         scoreboardGraphics.fillRect(0,0,1920,1080);
         scoreboardTimer.pause();
-        shotclockTimer.pause();
+        if (mode.equals("shotclock")) {
+            shotclockTimer.pause();
+        }
         scoreboardTimer.setTimer(1);
         paintTimer();
         startButton.setEnabled(false);
         stopButton.setEnabled(false);
+        if (homeNameColor.equals(Color.YELLOW)) {
+            switchButton();
+            homeNameColor = Color.RED;
+            guestNameColor = Color.YELLOW;
+        }
         nameHome = "RED";
-        homeNameColor = Color.RED;
         paintHomeName();
         nameGuest = "YELLOW";
-        guestNameColor = Color.YELLOW;
         paintGuestName();
         scoreHome = 0;
         paintHomeScore();
@@ -321,8 +331,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         paintPeriod();
         homeTimeouts = 3;
         guestTimeouts = 3;
-        //paintTimeouts();
-        paintShotClock();
+        if (mode.equals("shotclock")) {
+            paintShotClock();
+        } else {
+            paintTimeouts();
+        }
         paintLogos();
         scoreboardImageCanvas.repaint();
     }
@@ -331,36 +344,15 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         try {
             // Open an audio input stream.
             URL url = this.getClass().getClassLoader().getResource("resources/beep_long.wav");
-            audioIn = AudioSystem.getAudioInputStream(url);
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
             // Get a sound clip resource.
             DataLine.Info info = new DataLine.Info(Clip.class, audioIn.getFormat());
             clip = (Clip) AudioSystem.getLine(info);
             // Open audio clip and load samples from the audio input stream.
             clip.open(audioIn);
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (LineUnavailableException e) {
+        } catch (UnsupportedAudioFileException | LineUnavailableException | IOException e) {
             e.printStackTrace();
         }
-
-        /*try {
-            hornSoundFile = new URL(getCodeBase(), "resources/beep_long.wav");
-        } catch (java.net.MalformedURLException e) {
-            System.err.println("can't form beep_long.wav URL");
-        }
-        if (hornSoundFile != null) {
-            hornSound = getAudioClip(hornSoundFile);
-        }
-        try {
-            beepSoundFile = new URL(getCodeBase(), "resources/beep.au");
-        } catch (java.net.MalformedURLException e) {
-            System.err.println("can't form beep.au URL");
-        }
-        if (beepSoundFile != null) {
-            beepSound = getAudioClip(beepSoundFile);
-        }audiojava*/
     }
 
     private synchronized void paintLogos() {
@@ -369,7 +361,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardGraphics.drawImage(logoJesuwon, 1420, 74, this);
         scoreboardImageCanvas.repaint(1402, 74, 480, 192);
     }
-    /*private synchronized void paintTimeouts() {
+    private synchronized void paintTimeouts() {
         String homeTOString;
         String guestTOString;
 
@@ -389,7 +381,7 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         scoreboardGraphics.setColor(Color.WHITE);
         scoreboardGraphics.drawString(guestTOString, 1020, 1000);
         scoreboardImageCanvas.repaint(990, 850, 140, 180);
-    }*/
+    }
     private synchronized void paintShotClock() {
         String sSec;
         int dSec, dTime;
@@ -610,7 +602,11 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         paintGuestName();
         paintHomeScore();
         paintGuestScore();
-        //paintTimeouts();
+        if (mode.equals("shotclock")) {
+
+        } else {
+            paintTimeouts();
+        }
     }
 
     private int intValue(String str) {
@@ -665,89 +661,144 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
         handleKeyPress(e.getKeyChar());
     }
     private void handleKeyPress(char keyChar) {
-        if (keyChar=='a') {
+        if (keyChar=='n') {
             scoreHome += 3;
             paintHomeScore();
-        } else if (keyChar=='s') {
+        } else if (keyChar=='m') {
             scoreHome += 2;
             paintHomeScore();
-        } else if (keyChar=='z') {
+        } else if (keyChar==',') {
+            scoreHome += 1;
+            paintHomeScore();
+        } else if (keyChar=='.') {
             scoreHome -= 1;
             paintHomeScore();
-        } else if (keyChar=='d') {
+        } else if (keyChar=='7') {
             scoreGuest += 3;
             paintGuestScore();
-        } else if (keyChar=='f') {
+        } else if (keyChar=='8') {
             scoreGuest += 2;
             paintGuestScore();
-        } else if (keyChar=='c') {
+        } else if (keyChar=='9') {
+            scoreGuest += 1;
+            paintGuestScore();
+        } else if (keyChar=='0') {
             scoreGuest -= 1;
             paintGuestScore();
-        } else if (keyChar=='r') {
-            scoreboardTimer.cont();
-            startButton.setEnabled(false);
-            stopButton.setEnabled(true);
-            settimeButton.setEnabled(false);
-            scstartButton.setEnabled(true);
-            scresetButton.setEnabled(true);
-        } else if (keyChar=='w') {
-            scoreboardTimer.pause();
-            shotclockTimer.pause();
-            scstartButton.setEnabled(false);
-            scresetButton.setEnabled(false);
-            startButton.setEnabled(false);
-            stopButton.setEnabled(false);
-            startButton.setEnabled(false);
-            timeoutTimer.pause();
-            timeoutTimer.setTimer(convertTimeStringToInt("0:30"));
-            paintTimeoutTime();
-            timeoutTimer.cont();
-            startTOButton.setEnabled(false);
-            clearTOButton.setEnabled(true);
-        } else if (keyChar=='q') {
-            scoreboardTimer.pause();
-            scoreboardTimer.setTimer(convertTimeStringToInt(timerText.getText()));
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-            paintTimer();
-        } else if (keyChar=='e') {
-            timeoutTimer.pause();
-            timeoutTimer.setTimer(0);
-            startTOButton.setEnabled(true);
-            clearTOButton.setEnabled(false);
-            startButton.setEnabled(true);
-            paintTimer();
-            scstartButton.setEnabled(true);
-            scresetButton.setEnabled(true);
-        } else if (keyChar=='t') {
-            scoreboardTimer.pause();
-            shotclockTimer.pause();
-            startButton.setEnabled(true);
-            stopButton.setEnabled(false);
-            settimeButton.setEnabled(true);
-            scstartButton.setEnabled(false);
-            scresetButton.setEnabled(false);
-        } else if (keyChar=='x') {
+        } else if (keyChar=='l') { //start button
+            if (startButton.isEnabled()) {
+                scoreboardTimer.cont();
+                startButton.setEnabled(false);
+                stopButton.setEnabled(true);
+                settimeButton.setEnabled(false);
+                scstartButton.setEnabled(true);
+                scresetButton.setEnabled(true);
+                if (mode.equals("shotclock")) {
+                    if (periodNumber >= 2 && scoreboardTimer.timerValue <= 1200) {
+                        shotclockTimer.cont();
+                    }
+                }
+            }
+        } else if (keyChar=='k') { //timeout button
+            if (startTOButton.isEnabled()) {
+                scoreboardTimer.pause();
+                if (mode.equals("shotclock")) {
+                    shotclockTimer.pause();
+                }
+                scstartButton.setEnabled(false);
+                scresetButton.setEnabled(false);
+                startButton.setEnabled(false);
+                stopButton.setEnabled(false);
+                startButton.setEnabled(false);
+                timeoutTimer.pause();
+                timeoutTimer.setTimer(convertTimeStringToInt("0:30"));
+                paintTimeoutTime();
+                timeoutTimer.cont();
+                startTOButton.setEnabled(false);
+                clearTOButton.setEnabled(true);
+            }
+        } else if (keyChar=='p') { //set time button
+            if (settimeButton.isEnabled()) {
+                scoreboardTimer.pause();
+                scoreboardTimer.setTimer(convertTimeStringToInt(timerText.getText()));
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
+                paintTimer();
+            }
+        } else if (keyChar=='i') { //clear timeout button
+            if (clearTOButton.isEnabled()) {
+                timeoutTimer.pause();
+                timeoutTimer.setTimer(0);
+                startTOButton.setEnabled(true);
+                clearTOButton.setEnabled(false);
+                startButton.setEnabled(true);
+                scstartButton.setEnabled(true);
+                scresetButton.setEnabled(true);
+                //redisplayScoreboardTimer();
+            }
+        } else if (keyChar=='v') {
+            if (!mode.equals("shotclock")) {
+                if (homeTimeouts > 0) {
+                    homeTimeouts--;
+                }
+                paintTimeouts();
+            }
+        } else if (keyChar=='5') {
+            if (!mode.equals("shotclock")) {
+                if (guestTimeouts > 0) {
+                    guestTimeouts--;
+                }
+                paintTimeouts();
+            }
+        } else if (keyChar=='c') {
+            if (!mode.equals("shotclock")) {
+                homeTimeouts = 3;
+                paintTimeouts();
+            }
+        } else if (keyChar=='4') {
+            if (!mode.equals("shotclock")) {
+                guestTimeouts = 3;
+                paintTimeouts();
+            }
+        } else if (keyChar=='o') { //stop button
+            if (stopButton.isEnabled()) {
+                scoreboardTimer.pause();
+                if (mode.equals("shotclock")) {
+                    shotclockTimer.pause();
+                }
+                startButton.setEnabled(true);
+                stopButton.setEnabled(false);
+                settimeButton.setEnabled(true);
+                scstartButton.setEnabled(false);
+                scresetButton.setEnabled(false);
+            }
+        } else if (keyChar=='g') { //switch button
             switchButton();
-        } else if (keyChar=='g') {
+        } else if (keyChar=='j') { //period plus button
             if (periodNumber <= maxPeriods) {
                 periodNumber++;
                 paintPeriod();
             }
-        } else if (keyChar=='b') {
+        } else if (keyChar=='u') { //period minus button
             if (periodNumber > 1) {
                 periodNumber--;
             }
             paintPeriod();
-        } else if (keyChar=='v') {
-                resetScoreboard();
-        } else if (keyChar == 'k') {
-            shotclockTimer.cont();
-            scstartButton.setEnabled(false);
-        } else if (keyChar == 'j') {
-            shotclockTimer.pause();
-            shotclockTimer.setTimer(shotClockLength);
-            scstartButton.setEnabled(true);
+        } else if (keyChar=='q') { //reset button
+            resetScoreboard();
+        } else if (keyChar == 'h') { //shotclock start button
+            if (mode.equals("shotclock")) {
+                if (scstartButton.isEnabled()) {
+                    shotclockTimer.cont();
+                    scstartButton.setEnabled(false);
+                }
+            }
+        } else if (keyChar == 'y') { //shotclock reset button
+            if (mode.equals("shotclock")) {
+                shotclockTimer.pause();
+                shotclockTimer.setTimer(shotClockLength);
+                scstartButton.setEnabled(true);
+            }
         }
     }
 
@@ -760,12 +811,16 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             stopButton.setEnabled(false);
             paintTimer();
         } else if (source == scstartButton) {
-            shotclockTimer.cont();
-            scstartButton.setEnabled(false);
+            if (mode.equals("shotclock")) {
+                shotclockTimer.cont();
+                scstartButton.setEnabled(false);
+            }
         } else if (source == scresetButton) {
-            shotclockTimer.pause();
-            shotclockTimer.setTimer(shotClockLength);
-            scstartButton.setEnabled(true);
+            if (mode.equals("shotclock")) {
+                shotclockTimer.pause();
+                shotclockTimer.setTimer(shotClockLength);
+                scstartButton.setEnabled(true);
+            }
         } else if (source == sethomeButton) {
             nameHome = homeText.getText();
             paintHomeName();
@@ -779,26 +834,38 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             settimeButton.setEnabled(false);
             scstartButton.setEnabled(true);
             scresetButton.setEnabled(true);
-            shotclockTimer.cont();
+            if (mode.equals("shotclock")) {
+                shotclockTimer.cont();
+            }
         } else if (source == homeTOButton) {
-            if (homeTimeouts > 0) {
-                homeTimeouts--;
+            if (!mode.equals("shotclock")) {
+                if (homeTimeouts > 0) {
+                    homeTimeouts--;
+                }
+                paintTimeouts();
             }
-            //paintTimeouts();
         } else if (source == guestTOButton) {
-            if (guestTimeouts > 0) {
-                guestTimeouts--;
+            if (!mode.equals("shotclock")) {
+                if (guestTimeouts > 0) {
+                    guestTimeouts--;
+                }
+                paintTimeouts();
             }
-            //paintTimeouts();
         } else if (source == homeResetTOButton) {
-            homeTimeouts = 3;
-            //paintTimeouts();
+            if (!mode.equals("shotclock")) {
+                homeTimeouts = 3;
+                paintTimeouts();
+            }
         } else if (source == guestResetTOButton) {
-            guestTimeouts = 3;
-            //paintTimeouts();
+            if (!mode.equals("shotclock")) {
+                guestTimeouts = 3;
+                paintTimeouts();
+            }
         } else if (source == startTOButton) {
             scoreboardTimer.pause();
-            shotclockTimer.pause();
+            if (mode.equals("shotclock")) {
+                shotclockTimer.pause();
+            }
             scstartButton.setEnabled(false);
             scresetButton.setEnabled(false);
             startButton.setEnabled(false);
@@ -821,7 +888,9 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             scresetButton.setEnabled(true);
         } else if (source == stopButton) {
             scoreboardTimer.pause();
-            shotclockTimer.pause();
+            if (mode.equals("shotclock")) {
+                shotclockTimer.pause();
+            }
             startButton.setEnabled(true);
             stopButton.setEnabled(false);
             settimeButton.setEnabled(true);
@@ -874,6 +943,13 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
                 periodNumber--;
             }
             paintPeriod();
+        } else if (source == modeSwitchButton) {
+            if (mode.equals("shotclock")) {
+                mode = "noshotclock";
+            } else {
+                mode = "shotclock";
+            }
+            resetScoreboard();
         }
     }
 
@@ -902,71 +978,46 @@ public class Scoreboard extends Applet implements Runnable, ActionListener, KeyL
             if (lastTimeoutTimerValue != timeoutTimer.timerValue) {
                 paintTimeoutTime();
                 if (timeoutTimer.timerValue == 0) {
-                    clearTOButton.setEnabled(false);
-                    startTOButton.setEnabled(true);
-                    startButton.setEnabled(true);
                     clip.start();
                     try {
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    startSounds();
+                    clearTOButton.setEnabled(false);
+                    startTOButton.setEnabled(true);
+                    startButton.setEnabled(true);
                     clip.setMicrosecondPosition(0);
-                    /*if (beepSound != null) {
-                        clip.start();
-                    }*/
                 }
             }
 
             if (lastScoreboardTimerValue != scoreboardTimer.timerValue) {
                 paintTimer();
                 if (scoreboardTimer.timerValue == 0) {
-                    settimeButton.setEnabled(true);
-                    stopButton.setEnabled(false);
                     clip.start();
                     try {
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    startSounds();
+                    settimeButton.setEnabled(true);
+                    stopButton.setEnabled(false);
                     clip.setMicrosecondPosition(0);
-                    /*
-                    try {
-                        clip.open(audioIn);
-                    } catch (LineUnavailableException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (hornSound != null) {
-                        clip.start();
-                    }*/
                 }
             }
-
-            if (lastShotclockTimerValue != shotclockTimer.timerValue) {
-                paintShotClock();
-                if (shotclockTimer.timerValue == 1) {
-                    scstartButton.setEnabled(false);
-                    /*clip.start();
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    clip.close();
-                    try {
-                        clip.open(audioIn);
-                    } catch (LineUnavailableException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (beepSound != null) {
+            if (mode.equals("shotclock")) {
+                if (lastShotclockTimerValue != shotclockTimer.timerValue) {
+                    paintShotClock();
+                    if (shotclockTimer.timerValue == 1) {
                         clip.start();
-                    }*/
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        scstartButton.setEnabled(false);
+                        clip.setMicrosecondPosition(0);
+                    }
                 }
             }
             paint(scoreboardGraphics);
